@@ -4,6 +4,7 @@ import iss.ci.ga.GASchedule;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Optional;
 
 /**
@@ -87,21 +88,19 @@ public class Schedule {
         if (fitness == 0) {
             int res = resource;
             start = 0;
-            projects.stream().forEach(e -> {
-                e.setStart(0);
-                e.setEnd(0);
-            });
+            Comparator<Project> byEndDate = (Project p1, Project p2) -> Integer.compare(p1.getEnd(), p2.getEnd());
             for (Project proj : projects) {
                 while (proj.getEmp() > res) {
                     Optional<Project> next = projects.stream()
                             .filter(f -> f.getEnd() > start)
-                            .min((p1, p2) -> Integer.compare(p1.getEnd(), p2.getEnd()));
+                            .min(byEndDate);
                     if (!next.isPresent()) {
                         next = projects.stream()
                                 .filter(e -> e.getEnd() == start)
-                                .min((p1, p2) -> Integer.compare(p1.getEnd(), p2.getEnd()));
+                                .min(byEndDate);
                     }
                     start = next.get().getEnd();
+                    //Release all resource with same end date as our current start date
                     res = res + projects.stream()
                                             .filter(e -> e.getEnd() == start)
                                             .mapToInt(e -> e.getEmp())
@@ -112,7 +111,7 @@ public class Schedule {
                 proj.setEnd(start + proj.getDuration());
             }
             fitness = projects.stream()
-                    .max((p1, p2) -> Integer.compare(p1.getEnd(), p2.getEnd()))
+                    .max(byEndDate)
                     .get().getEnd();
         }
         return fitness;
