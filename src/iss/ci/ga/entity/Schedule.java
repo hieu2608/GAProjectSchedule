@@ -1,5 +1,7 @@
 package iss.ci.ga.entity;
 
+import iss.ci.ga.GASchedule;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
@@ -51,6 +53,10 @@ public class Schedule {
         return projects.contains(project);
     }
 
+    public void setFitness(int fitness) {
+        this.fitness = fitness;
+    }
+
     // Creates a random individual
     public void generateIndividual() {
         // Loop through all our projects and add them to our schedule
@@ -81,12 +87,12 @@ public class Schedule {
         if (fitness == 0) {
             int res = resource;
             start = 0;
-//            System.out.println("Before getFitness, res=" + res);
+            projects.stream().forEach(e -> {
+                e.setStart(0);
+                e.setEnd(0);
+            });
             for (Project proj : projects) {
                 while (proj.getEmp() > res) {
-//                    System.out.println("While loop: Resource " + res + ", start " + start + proj.toString());
-//                    projects.stream()
-//                            .forEach(e -> System.out.println(e.toString()));
                     Optional<Project> next = projects.stream()
                             .filter(f -> f.getEnd() > start)
                             .min((p1, p2) -> Integer.compare(p1.getEnd(), p2.getEnd()));
@@ -96,18 +102,18 @@ public class Schedule {
                                 .min((p1, p2) -> Integer.compare(p1.getEnd(), p2.getEnd()));
                     }
                     start = next.get().getEnd();
-                    res = res + next.get().getEmp();
+                    res = res + projects.stream()
+                                            .filter(e -> e.getEnd() == start)
+                                            .mapToInt(e -> e.getEmp())
+                                            .sum();
                 }
                 res = res - proj.getEmp();
                 proj.setStart(start);
                 proj.setEnd(start + proj.getDuration());
             }
-//            System.out.println("List of project before get Fitness");
-//            print();
             fitness = projects.stream()
                     .max((p1, p2) -> Integer.compare(p1.getEnd(), p2.getEnd()))
                     .get().getEnd();
-//            System.out.println("Fitness value: " + fitness);
         }
         return fitness;
     }

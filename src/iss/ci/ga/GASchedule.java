@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 
 public class GASchedule {
     public final static int RESOURCE = 7;
+    public static boolean DEBUG = false;
 
     public static void main(String[] args) {
         //Load data from CSV file
@@ -21,6 +22,7 @@ public class GASchedule {
         String cvsSplitBy = ",";
         System.out.println(Paths.get(".").toAbsolutePath().normalize().toString());
         try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            String header = br.readLine();
             while ((line = br.readLine()) != null) {
                 // use comma as separator
                 String[] csvLine = line.split(cvsSplitBy);
@@ -45,9 +47,12 @@ public class GASchedule {
         }
 
         // Print final results
+        fittest = pop.getFittest();
+        fittest.setFitness(0);
+        DEBUG = true;
         System.out.println("\nFinished");
-        System.out.println("Final Duration: " + pop.getFittest().getFitness());
+        System.out.println("Final Duration: " + fittest.getFitness());
         System.out.println("Solution:");
-        pop.getFittest().print();
+        fittest.print();
     }
 }
