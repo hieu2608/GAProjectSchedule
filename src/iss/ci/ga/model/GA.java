@@ -59,17 +59,17 @@ public class GA {
         // Get start and end sub schedule positions for parent1's schedule
         int startPos = (int) (Math.random() * parent1.size());
         int endPos = (int) (Math.random() * parent1.size());
+        if (startPos > endPos) {
+            int temp = startPos;
+            endPos = startPos;
+            startPos = temp;
+        }
 
         // Loop and add the sub schedule from parent1 to our child
         for (int i = 0; i < child.size(); i++) {
             // If our start position is less than the end position
-            if (startPos < endPos && i > startPos && i < endPos) {
+            if (i > startPos && i < endPos) {
                 child.setProject(i, parent1.getProject(i));
-            } // If our start position is larger
-            else if (startPos > endPos) {
-                if (!(i < startPos && i > endPos)) {
-                    child.setProject(i, parent1.getProject(i));
-                }
             }
         }
 
@@ -87,6 +87,7 @@ public class GA {
                 }
             }
         }
+
         return child;
     }
 
